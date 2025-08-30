@@ -1,6 +1,10 @@
 services:
-  test:
-    container_name: test
+  tjan-wievielnoch:
+    container_name: tjan-wievielnoch
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - SESSION
+    ports:
+      - 80:80
