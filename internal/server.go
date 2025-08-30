@@ -21,15 +21,15 @@ func (handler *Handler) rootHandler(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	required := 0
+
 	checked := 0
 	for _, game := range games {
-		required += game.Required
-		checked += game.Checked
+		if game.Checked {
+			checked++
+		}
 	}
 	//nolint:mnd // allow 100
-	percentage := float64(checked) / float64(required) * 100
-	//nolint:mnd // allow 100
+	percentage := float64(checked) / float64(len(games)) * 100
 	fmt.Fprintf(w, "Geschafft: %.1f%%", percentage)
 }
 

@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"regexp"
-	"strconv"
 )
 
 type GamesResponse struct {
@@ -16,13 +14,9 @@ type GamesResponse struct {
 }
 
 type Game struct {
-	Name     string
-	Checked  int
-	Required int
+	Name    string
+	Checked bool
 }
-
-var winsRegex = regexp.MustCompile(`(?i)\b(\d+)\s*wins?\b`)
-var streakRegex = regexp.MustCompile(`(?i)\b(\d+)\s*x\b`)
 
 type BulletService struct {
 	session string
@@ -61,30 +55,20 @@ func (bulletService *BulletService) GetGames() ([]Game, error) {
 	}
 	games := []Game{}
 	for _, rawGame := range rawGames.Games {
-		games = append(games, Game{
-			Name:     rawGame.Name,
-			Checked:  rawGame.Checked,
-			Required: bulletService.getRequired(rawGame.Name),
-		})
+		if rawGame.Checked == 0 {
+			games = append(games, Game{
+				Name:    rawGame.Name,
+				Checked: false,
+			})
+			continue
+		}
+		if rawGame.Checked == 1 {
+			games = append(games, Game{
+				Name:    rawGame.Name,
+				Checked: true,
+			})
+			continue
+		}
 	}
 	return games, nil
-}
-
-func (bulletService *BulletService) getRequired(name string) int {
-	if wins := winsRegex.FindStringSubmatch(name); wins != nil {
-		required, _ := strconv.Atoi(wins[1])
-		if required < 1 {
-			required = 1
-		}
-		return required
-	}
-
-	if st := streakRegex.FindStringSubmatch(name); st != nil {
-		required, _ := strconv.Atoi(st[1])
-		if required < 1 {
-			required = 1
-		}
-		return required
-	}
-	return 0
 }
