@@ -6,11 +6,5 @@ services:
       dockerfile: Dockerfile
     environment:
       - SESSION
-    expose:
-      - 80
-    networks:
-      - main-network
-networks:
-  main-network:
-    name: main-network
-    external: true
+    ports:
+      - 80:80
