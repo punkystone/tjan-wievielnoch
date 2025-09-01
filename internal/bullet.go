@@ -2,15 +2,16 @@ package internal
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 )
 
 type GamesResponse struct {
 	Games []struct {
-		Name    string `json:"name"`
-		Checked int    `json:"checked"`
-	} `json:"games"`
+		Name    string `json:"name,omitempty"`
+		Checked int    `json:"checked,omitempty"`
+	} `json:"games,omitempty"`
 }
 
 type Game struct {
@@ -44,6 +45,9 @@ func (bulletService *BulletService) getGamesRequest() (*GamesResponse, error) {
 	err = json.NewDecoder(response.Body).Decode(gamesResponse)
 	if err != nil {
 		return nil, fmt.Errorf("error decoding response: %w", err)
+	}
+	if len(gamesResponse.Games) == 0 {
+		return nil, errors.New("no games")
 	}
 	return gamesResponse, nil
 }
